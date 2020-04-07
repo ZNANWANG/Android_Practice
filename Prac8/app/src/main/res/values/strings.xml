@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Prac8</string>
+    <string name="login_account">Account</string>
+    <string name="login_password">Password</string>
+    <string name="remember_account">Remember me</string>
+    <string name="login_button">Login</string>
+</resources>

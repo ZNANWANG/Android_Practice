@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Prac3</string>
+    <string name="hello">Hello world!</string>
+    <string name="button">Button</string>
+    <string name="main_activity_label">Main Activity</string>
+    <string name="second_activity_label">Second Activity</string>
+</resources>
