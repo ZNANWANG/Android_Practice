@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.strictmode.SqliteObjectLeakedViolation;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,15 +23,15 @@ public class MyContentProvider extends ContentProvider {
 
     static{
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(AUTHORITY, "/book", BOOK_DIR);
-        uriMatcher.addURI(AUTHORITY, "/book/#", BOOK_ITEM);
-        uriMatcher.addURI(AUTHORITY, "/category", CATEGORY_DIR);
-        uriMatcher.addURI(AUTHORITY, "/category/#", CATEGORY_ITEM);
+        uriMatcher.addURI(AUTHORITY, "book", BOOK_DIR);
+        uriMatcher.addURI(AUTHORITY, "book/#", BOOK_ITEM);
+        uriMatcher.addURI(AUTHORITY, "category", CATEGORY_DIR);
+        uriMatcher.addURI(AUTHORITY, "category/#", CATEGORY_ITEM);
     }
 
     @Override
     public boolean onCreate() {
-        myDatabaseHelper = new MyDatabaseHelper(getContext(), "BookStore.db", null, 1);
+        myDatabaseHelper = new MyDatabaseHelper(getContext(), "BookStore.db", null, 3);
         return false;
     }
 
@@ -109,6 +110,7 @@ public class MyContentProvider extends ContentProvider {
             case BOOK_ITEM:
                 String bookId = uri.getPathSegments().get(1);
                 deletedRows = sqLiteDatabase.delete("Book", "id = ?", new String[] { bookId });
+                break;
             case CATEGORY_DIR:
                 deletedRows = sqLiteDatabase.delete("Category", selection, selectionArgs);
                 break;
