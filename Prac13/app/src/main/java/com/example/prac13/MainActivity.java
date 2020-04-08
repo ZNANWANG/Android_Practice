@@ -7,13 +7,27 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 public class MainActivity extends AppCompatActivity {
+    private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     private Button sendRequest;
     private TextView responseText;
 
@@ -25,13 +39,85 @@ public class MainActivity extends AppCompatActivity {
         sendRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendRequestWithHttpURLConnection();
+//                sendRequestWithHttpURLConnectionGet();
+                sendRequestWithHttpURLConnectionPost();
+//                sendRequestWithOkHttpGet();
+//                sendRequestWithOkHttpPost();
             }
         });
         responseText = findViewById(R.id.textView);
     }
 
-    public void sendRequestWithHttpURLConnection(){
+    public void sendRequestWithOkHttpGet(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    OkHttpClient okHttpClient = new OkHttpClient();
+                    Request request = new Request.Builder().url("http://www.baidu.com").build();
+                    Response response = okHttpClient.newCall(request).execute();
+                    String responseData = response.body().string();
+                    showResponse(responseData);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    public void sendRequestWithOkHttpPost(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    OkHttpClient okHttpClient = new OkHttpClient();
+                    JSONObject jsonObject = new JSONObject();
+                    RequestBody requestBody = RequestBody.create(JSON, jsonObject.toString());
+                    Request request = new Request.Builder().url("http:\\www.baidu.com").post(requestBody).build();
+                    Response response = okHttpClient.newCall(request).execute();
+                    String responseData = response.body().string();
+                    showResponse(responseData);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    public void sendRequestWithHttpURLConnectionPost(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpURLConnection httpURLConnection = null;
+                BufferedReader bufferedReader = null;
+                try{
+                    URL url = new URL("http://www.baidu.com");
+                    httpURLConnection = (HttpURLConnection) url.openConnection();
+                    httpURLConnection.setRequestMethod("POST");
+                    httpURLConnection.setConnectTimeout(8000);
+                    httpURLConnection.setReadTimeout(8000);
+                    DataOutputStream dataOutputStream = new DataOutputStream(httpURLConnection.getOutputStream());
+                    dataOutputStream.writeBytes("username=admin&password=123456");
+                    dataOutputStream.close();
+                    int responseCode = httpURLConnection.getResponseCode();
+                    if(responseCode == HttpURLConnection.HTTP_OK) {
+                        InputStream inputStream = httpURLConnection.getInputStream();
+                        bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                        StringBuffer response = new StringBuffer();
+                        String line = "";
+                        while ((line = bufferedReader.readLine()) != null) {
+                            response.append(line);
+                        }
+                        showResponse(response.toString());
+                    }
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    public void sendRequestWithHttpURLConnectionGet(){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -43,14 +129,17 @@ public class MainActivity extends AppCompatActivity {
                     httpURLConnection.setRequestMethod("GET");
                     httpURLConnection.setConnectTimeout(8000);
                     httpURLConnection.setReadTimeout(8000);
-                    InputStream inputStream = httpURLConnection.getInputStream();
-                    bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                    StringBuffer response = new StringBuffer();
-                    String line = "";
-                    while((line = bufferedReader.readLine()) != null){
-                        response.append(line);
+                    int responseCode = httpURLConnection.getResponseCode();
+                    if(responseCode == HttpURLConnection.HTTP_OK) {
+                        InputStream inputStream = httpURLConnection.getInputStream();
+                        bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                        StringBuffer response = new StringBuffer();
+                        String line = "";
+                        while ((line = bufferedReader.readLine()) != null) {
+                            response.append(line);
+                        }
+                        showResponse(response.toString());
                     }
-                    showResponse(response.toString());
                 }catch(Exception e){
                     e.printStackTrace();
                 }finally {
